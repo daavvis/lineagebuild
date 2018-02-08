@@ -623,13 +623,6 @@ for DEVICE in ${DEVICES[@]}; do
 
   cd "$SAUCE" || exit 3
 
-# Need more memory for clean builds
-  echo "Clean build found..."
-  echo "Increasing memory for jack, just in case..."
-  if [ ! -d /out/target/product/"$DEVICE" ]; then
-    export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"
-    jack-admin kill-server && jack-admin start-server
-
   if [[ "$CCACHE" = y ]]; then
     export USE_CCACHE=1
       if [[ "$CCDIR" = y ]]; then
@@ -662,6 +655,13 @@ for DEVICE in ${DEVICES[@]}; do
       info "Running mka installclean..."
       mka installclean
   fi
+
+# Need more memory for clean builds
+  echo "Clean build found..."
+  echo "Increasing memory for jack, just in case..."
+  if [ ! -d /out/target/product/"$DEVICE" ]; then
+    export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"
+    jack-admin kill-server && jack-admin start-server
 
   info "Cooking the bacon..."
 
