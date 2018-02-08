@@ -64,11 +64,11 @@ readonly bldcya=$txtbld$cya  #  cyan
 readonly txtrst=$(tput sgr0) # Reset
 
 echo -e "$bldylw"
-echo "              __  ___      __ __"
-echo "             /  |/  /___  / //_/__  ___"
-echo "            / /|_/ / __ \/ ,< / _ \/ _ \ "
-echo "           / /  / / /_/ / /| /  __/  __/"
-echo "          /_/  /_/\____/_/ |_\___/\___/"
+echo "                              ____          _____   ____"
+echo "             /    /  /|   /  /      /|     /    /  /"
+echo "            /    /  / |  /  /___   /_|    / __    /___"
+echo "           /    /  /  | /  /      /  |   /    /  /    "
+echo "          /__  /  /   |/  /____  /   |  /____/  /____"
 echo ""
 echo "                            opensource"
 echo ""
