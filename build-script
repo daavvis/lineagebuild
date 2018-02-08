@@ -35,7 +35,7 @@ QCLEAN=n
 CLEAN=n
 OTA=n
 FTP=n
-FTPHOST=mokeedev.com
+FTPHOST=
 FTPUSER=
 FTPPASS=
 FTPFULL=FULL/UNOFFICIAL
@@ -417,8 +417,9 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
 # Upload to mokeedev.com?
   while :; do
     if FTP=$(askyn "Would you like to enable FTP uploading" "$FTP"); then
-      FTPUSER=$(ask "What is your mokeedev.com username:" "$FTPUSER")
-      FTPPASS=$(ask -s "What is your mokeedev.com password:" "$FTPPASS")
+      FTPHOST=$(ask "What is your FTP Host address (ie johndoe@ftpsight.com)?" "$FTPHOST")
+      FTPUSER=$(ask "What is your FTP server username:" "$FTPUSER")
+      FTPPASS=$(ask -s "What is your FTP server pasword:" "$FTPPASS")
       info "Checking access to "$FTPHOST""
         until curl -# ftp://"$FTPUSER":"$FTPPASS"@"$FTPHOST"/ >/dev/null; do
           err "User Name and or Password not correct..."
@@ -434,13 +435,13 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
     fi
   done
   
-# Choose devices to upload to mokeedev.com
+# Choose devices to upload
   if [ "$FTP" = y ]; then
     declare -i i=${#FTPUL[*]}
     for DEVICE in ${DEVICES[@]}; do
       if FTPUP=$(askyn "Would you like to upload "$DEVICE"?" $FTPUP); then
         FTPUL[$((i++))]=$DEVICE
-        echo ""FTPUL[$((i++))]"="$DEVICE"   # Upload "$DEVICE" to mokeedev">>""$SAUCE"/out/buildrules/build.conf"
+        echo ""FTPUL[$((i++))]"="$DEVICE"   # Upload "$DEVICE" to "$FTPHOST"">>""$SAUCE"/out/buildrules/build.conf"
         echo "Added to FTP upload list: "${FTPUL[@]}""
       else
         err "NOT UPLOADING "$DEVICE"..."
@@ -710,7 +711,7 @@ if [ "$OTA" = y ]; then
   done
 fi
 
-# Upload to mokeedev.com
+# Upload to FTP
 if [ "$FTP" = y ]; then
   for FTPD in ${FTPUL[@]}; do
     ROMFOLDER=$(get_build_var OUT_DIR)/target/product/"$FTPD"
