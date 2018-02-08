@@ -644,7 +644,7 @@ for DEVICE in ${DEVICES[@]}; do
   cd "$SAUCE"
   . build/envsetup.sh
   croot
-  lunch "${DEVICE}"
+  lunch lineage_"${DEVICE}"-userdebug
 
   if grep -q -w "BPD...="$DEVICE"" "$SAUCE"/out/buildrules/build.conf; then
     info "Removing build.prop"
@@ -662,6 +662,7 @@ for DEVICE in ${DEVICES[@]}; do
   if [ ! -d /out/target/product/"$DEVICE" ]; then
     export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4g"
     jack-admin kill-server && jack-admin start-server
+  fi
 
   info "Cooking the bacon..."
 
