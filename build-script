@@ -644,7 +644,7 @@ for DEVICE in ${DEVICES[@]}; do
   cd "$SAUCE"
   . build/envsetup.sh
   croot
-  lunch mk_"${DEVICE}"-userdebug
+  brunch "${DEVICE}"
 
   if grep -q -w "BPD...="$DEVICE"" "$SAUCE"/out/buildrules/build.conf; then
     info "Removing build.prop"
