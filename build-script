@@ -30,7 +30,7 @@ J=4
 BP=y
 CCACHE=y
 DEFAULT_CCACHE_DIR=~/.ccache
-PRCHR=n
+#PRCHR=n
 QCLEAN=n
 CLEAN=n
 # OTA=n
@@ -70,7 +70,7 @@ echo "            /    /  / |  /  /___   /_|    / __    /___"
 echo "           /    /  /  | /  /      /  |   /    /  /    "
 echo "          /__  /  /   |/  /____  /   |  /____/  /____"
 echo ""
-echo "                            opensource"
+echo "                               OS"
 echo ""
 echo ""
 echo -e "$txtrst"
@@ -319,25 +319,25 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
     fi
   fi
 
-# Use a prebuilt chromium?
-  if askyn "Would you like to to use a prebuilt Chromium for chosen devices? (speeds up build time)"; then
-    for DEVICE in ${DEVICES[@]}; do
-      declare -i i=${#USECH[*]}
-      if askyn "Would you like to use a prebuilt Chromium for "$DEVICE"?"; then
-        if [[ ! -f ""$SAUCE"/prebuilts/chromium/"$DEVICE"/hash_chromium.txt" && ! -f ""$SAUCE"/prebuilts/chromium/"$DEVICE"/hash_webview.txt" ]]; then
-          err "You have not built with a prebuilt Chromium before..."
-          err "Chromium will be built from source this time, but will be set up for future prebuilt builds..."
-          USECH[$((i++))]=$DEVICE
-          echo ""USECH[$((i++))]"="$DEVICE"   # Use prebuilt chromium for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
-        else
-          echo "Using prebuilt Chromium for "$DEVICE", as long as it is up to date..."
-          USECH[$((i++))]=$DEVICE
-          echo ""USECH[$((i++))]"="$DEVICE"   # Use prebuilt chromium for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
-        fi
-      else echo "Not using prebuilt Chronium for "$DEVICE"..."
-      fi
-    done
-  fi
+## Use a prebuilt chromium?
+#  if askyn "Would you like to to use a prebuilt Chromium for chosen devices? (speeds up build time)"; then
+#    for DEVICE in ${DEVICES[@]}; do
+#      declare -i i=${#USECH[*]}
+#      if askyn "Would you like to use a prebuilt Chromium for "$DEVICE"?"; then
+#        if [[ ! -f ""$SAUCE"/prebuilts/chromium/"$DEVICE"/hash_chromium.txt" && ! -f ""$SAUCE"/prebuilts/chromium/"$DEVICE"/hash_webview.txt" ]]; then
+#          err "You have not built with a prebuilt Chromium before..."
+#          err "Chromium will be built from source this time, but will be set up for future prebuilt builds..."
+#          USECH[$((i++))]=$DEVICE
+#          echo ""USECH[$((i++))]"="$DEVICE"   # Use prebuilt chromium for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+#        else
+#          echo "Using prebuilt Chromium for "$DEVICE", as long as it is up to date..."
+#          USECH[$((i++))]=$DEVICE
+#          echo ""USECH[$((i++))]"="$DEVICE"   # Use prebuilt chromium for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+#        fi
+#      else echo "Not using prebuilt Chronium for "$DEVICE"..."
+#      fi
+#    done
+#  fi
 
 # Remove the build.prop before the build? (We only do this if "make clean" was not selected)
   if [[ "$CLEAN" =~ ^([nN]) ]]; then
@@ -635,10 +635,10 @@ for DEVICE in ${DEVICES[@]}; do
     unset USE_CCACHE
   fi
 
-  unset USE_PREBUILT_CHROMIUM
-  if grep -q -w "USECH...="$DEVICE"" "$SAUCE"/out/buildrules/build.conf; then
-    export USE_PREBUILT_CHROMIUM=1
-  fi
+#  unset USE_PREBUILT_CHROMIUM
+#  if grep -q -w "USECH...="$DEVICE"" "$SAUCE"/out/buildrules/build.conf; then
+#    export USE_PREBUILT_CHROMIUM=1
+#  fi
 
 # Start the build
   info "Building "$DEVICE""
