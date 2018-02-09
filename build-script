@@ -479,8 +479,8 @@ if [ "$USECONF" = n ]; then
   echo "JB="$JB"    # Choose number of build threads?">>""$SAUCE"/out/buildrules/build.conf"
   echo "JBN="$JBN"   # Number of threads to build with">>""$SAUCE"/out/buildrules/build.conf"
 #  echo "OTA="$OTA"   # Build OTA updates after build?">>""$SAUCE"/out/buildrules/build.conf"
-  echo "FTP="$FTP"   # Upload finished pruduckt to mokeedev?">>""$SAUCE"/out/buildrules/build.conf"
-  echo "FTPUSER="$FTPUSER"   # Mokeedev username">>""$SAUCE"/out/buildrules/build.conf"
+  echo "FTP="$FTP"   # Upload finished pruduckt to FTP server?">>""$SAUCE"/out/buildrules/build.conf"
+  echo "FTPUSER="$FTPUSER"   # FTP username">>""$SAUCE"/out/buildrules/build.conf"
 fi
 
 # Final build settings
@@ -573,17 +573,17 @@ if [ "$CLEAN" = y ]; then
   fi
 fi
 
-# It's not safe to store a mokee.dev password in build.conf.
+# It's not safe to store a FTP password in build.conf.
 # if you chose to use your previous configuration, you have to re enter your password.
 if [[ "$USECONF" = y && "$FTP" = y ]]; then
-  err "Please enter your mokee.dev password for ftp uploading."
+  err "Please enter your FTP server password for ftp uploading."
   while :; do
-    FTPPASS=$(ask -s "What is your mokeedev.com password:" "$FTPPASS")
+    FTPPASS=$(ask -s "What is your FTP server password:" "$FTPPASS")
     info "Checking access to "$FTPHOST""
     until curl -# ftp://"$FTPUSER":"$FTPPASS"@"$FTPHOST"/ >/dev/null; do
       err "User Name and or Password not correct..."
-      FTPUSER=$(ask "What is your mokeedev.com username:" "$FTPUSER")
-      FTPPASS=$(ask -s "What is your mokeedev.com password:")
+      FTPUSER=$(ask "What is your FTP username:" "$FTPUSER")
+      FTPPASS=$(ask -s "What is your FTP server password:")
       info "Checking access to "$FTPHOST""
     done
     info "Success!"
