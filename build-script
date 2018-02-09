@@ -33,13 +33,13 @@ DEFAULT_CCACHE_DIR=~/.ccache
 PRCHR=n
 QCLEAN=n
 CLEAN=n
-OTA=n
+# OTA=n
 FTP=n
 FTPHOST=
 FTPUSER=
 FTPPASS=
 FTPFULL=FULL/UNOFFICIAL
-FTPOTA=OTA/UNOFFICIAL
+# FTPOTA=OTA/UNOFFICIAL
 JB=n
 
 # Find processor cores
@@ -378,41 +378,41 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
   fi
 
 # Make OTA's for chosen devices?
-  if OTA=$(askyn "Do you want to make an ota package for chosen devices?" $OTA); then
-  declare -i i=${#OTABO[*]}
-    for DEVICE in ${DEVICES[@]}; do
-      OTABDIR=$SAUCE/mokee/FULL/UNOFFICIAL/$DEVICE
-        if OTABUILD=$(askyn "Do you want to make an ota package for "$DEVICE"?" $OTABUILD); then
-          if [ ! -f "$OTABDIR"/*".zip" ]; then
-            err "YOU ARE NOT SET UP FOR "$DEVICE" OTA BUILDS"
-            err "SETTING UP BUILD FOLDER"
-            mkdir -p "$OTABDIR"
-              while :; do
-                USRSTR=$(ask "Enter the path to your "$DEVICE" rom storage directory:" "$USRSTR")
-                OLDIE=$(ls -t "$USRSTR"/*"$DEVICE"*"UNOFFICIAL.zip" | head -1)
-                  until [ -e "$OLDIE" ]; do
-                    err ""$USRSTR" DOES NOT HAVE ANY ROMS FOR "$DEVICE" INSIDE!!"
-                    USRSTR=$(ask "Enter the path to your "$DEVICE" rom storage directory:" "$USRSTR")
-                    OLDIE=$(ls -t "$USRSTR"/*"$DEVICE"*"UNOFFICIAL.zip" | head -1)
-                  done
-                cp "$OLDIE" "$OTABDIR"
-                OTABO[$((i++))]=$DEVICE
-                echo "Added to OTA build list: "${OTABO[@]}""
-                echo ""OTABO[$((i++))]"="$DEVICE"   # Build OTA for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
-                break
-              done
-          elif [ -f "$OTABDIR"/*".zip" ];then
-            OTABO[$((i++))]=$DEVICE
-            echo "Added to OTA build list: "${OTABO[@]}""
-            echo ""OTABO[$((i++))]"="$DEVICE"   # Build OTA for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
-          fi
-        else
-          err "NOT BUILDING OTA FOR "$DEVICE"..."
-        fi
-    done
-  echo "Final OTA build list: "${OTABO[*]}""
-  echo ""
-  fi
+#  if OTA=$(askyn "Do you want to make an ota package for chosen devices?" $OTA); then
+#  declare -i i=${#OTABO[*]}
+#    for DEVICE in ${DEVICES[@]}; do
+#      OTABDIR=$SAUCE/mokee/FULL/UNOFFICIAL/$DEVICE
+#        if OTABUILD=$(askyn "Do you want to make an ota package for "$DEVICE"?" $OTABUILD); then
+#          if [ ! -f "$OTABDIR"/*".zip" ]; then
+#            err "YOU ARE NOT SET UP FOR "$DEVICE" OTA BUILDS"
+#            err "SETTING UP BUILD FOLDER"
+#            mkdir -p "$OTABDIR"
+#              while :; do
+#                USRSTR=$(ask "Enter the path to your "$DEVICE" rom storage directory:" "$USRSTR")
+#                OLDIE=$(ls -t "$USRSTR"/*"$DEVICE"*"UNOFFICIAL.zip" | head -1)
+#                  until [ -e "$OLDIE" ]; do
+#                    err ""$USRSTR" DOES NOT HAVE ANY ROMS FOR "$DEVICE" INSIDE!!"
+#                    USRSTR=$(ask "Enter the path to your "$DEVICE" rom storage directory:" "$USRSTR")
+#                    OLDIE=$(ls -t "$USRSTR"/*"$DEVICE"*"UNOFFICIAL.zip" | head -1)
+#                  done
+#                cp "$OLDIE" "$OTABDIR"
+#                OTABO[$((i++))]=$DEVICE
+#                echo "Added to OTA build list: "${OTABO[@]}""
+#                echo ""OTABO[$((i++))]"="$DEVICE"   # Build OTA for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+#                break
+#              done
+#          elif [ -f "$OTABDIR"/*".zip" ];then
+#            OTABO[$((i++))]=$DEVICE
+#            echo "Added to OTA build list: "${OTABO[@]}""
+#            echo ""OTABO[$((i++))]"="$DEVICE"   # Build OTA for "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+#          fi
+#        else
+#          err "NOT BUILDING OTA FOR "$DEVICE"..."
+#        fi
+#    done
+#  echo "Final OTA build list: "${OTABO[*]}""
+#  echo ""
+#  fi
 
 # Upload to mokeedev.com?
   while :; do
@@ -478,7 +478,7 @@ if [ "$USECONF" = n ]; then
   echo "NEW_CCACHE_DIR="$NEW_CCACHE_DIR"   # Chosen ccache dir if changed">>""$SAUCE"/out/buildrules/build.conf"
   echo "JB="$JB"    # Choose number of build threads?">>""$SAUCE"/out/buildrules/build.conf"
   echo "JBN="$JBN"   # Number of threads to build with">>""$SAUCE"/out/buildrules/build.conf"
-  echo "OTA="$OTA"   # Build OTA updates after build?">>""$SAUCE"/out/buildrules/build.conf"
+#  echo "OTA="$OTA"   # Build OTA updates after build?">>""$SAUCE"/out/buildrules/build.conf"
   echo "FTP="$FTP"   # Upload finished pruduckt to mokeedev?">>""$SAUCE"/out/buildrules/build.conf"
   echo "FTPUSER="$FTPUSER"   # Mokeedev username">>""$SAUCE"/out/buildrules/build.conf"
 fi
@@ -491,11 +491,11 @@ echo ""
 USE PREVIOUS BUILD CONFIGURATION: $USECONF
 DEVICES TO BUILD: ${DEVICES[@]}
 !EOD
-if [ "$OTA" = y ]; then
-  cat <<!EOD
-DEVICES FOR OTA BUILD: ${OTABO[@]}
-!EOD
-fi
+#if [ "$OTA" = y ]; then
+#  cat <<!EOD
+#DEVICES FOR OTA BUILD: ${OTABO[@]}
+#!EOD
+#fi
 if [ "$FTP" = y ]; then
   cat <<!EOD
 DEVICES FOR FTP UPLOAD: ${FTPUL[@]}
@@ -678,38 +678,38 @@ for DEVICE in ${DEVICES[@]}; do
   echo ""
 done
 
-# Build OTA for chosen devices
-if [ "$OTA" = y ]; then
-  for OTAO in ${OTABO[@]}; do
-    ROMFOLDER=$(get_build_var OUT_DIR)/target/product/"$OTAO"
-    ROM=$(ls -t "$ROMFOLDER"/*"$OTAO"*"UNOFFICIAL.zip" | head -1)
-    ROMMD="$ROM".md5sum
-    OTABDIR=$SAUCE/mokee/FULL/UNOFFICIAL/$OTAO
-    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
-      echo ""
-      info "Copying "$OTAO" ROM to OTA build dir..."
-      cp "$ROM" "$OTABDIR"
+## Build OTA for chosen devices
+#if [ "$OTA" = y ]; then
+#  for OTAO in ${OTABO[@]}; do
+#    ROMFOLDER=$(get_build_var OUT_DIR)/target/product/"$OTAO"
+#    ROM=$(ls -t "$ROMFOLDER"/*"$OTAO"*"UNOFFICIAL.zip" | head -1)
+#    ROMMD="$ROM".md5sum
+#    OTABDIR=$SAUCE/mokee/FULL/UNOFFICIAL/$OTAO
+#    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
+#      echo ""
+#      info "Copying "$OTAO" ROM to OTA build dir..."
+#      cp "$ROM" "$OTABDIR"
 
-      info "Creating "$OTAO" OTA.zip..."
-      export MK_OTA_INPUT="$SAUCE"/mokee/FULL
-      export MK_OTA_EXTRA="$SAUCE"/mokee/OTA
-      ota_all UNOFFICIAL "$OTAO"
-      OTAN=$(ls -t "$OTAFOLDER"/*"$OTAO"*"UNOFFICIAL"*".zip" | head -1)
-      OTAMD=$(dirname "$OTAN")/md5/$(basename "$OTAN").md5sum
-      TEMP=$OTAFOLDER/temp
-      TEMPMD=$OTAFOLDER/temp/md5
-        if [ "$FTP" = y ]; then
-          mkdir -p "$TEMPMD"
-          cp "$OTAN" "$TEMP"
-          cp "$OTAMD" "$TEMPMD"
-      fi
-      info "Cleaning up..."
-      OLDROMS=$(ls -tr "$OTABDIR"/*"$OTAO"*"UNOFFICIAL.zip" | head -n 1)
-      if [[ "$OLDROMS" ]]; then
-        rm "$OLDROMS"
-      fi
-  done
-fi
+#      info "Creating "$OTAO" OTA.zip..."
+#      export MK_OTA_INPUT="$SAUCE"/mokee/FULL
+#      export MK_OTA_EXTRA="$SAUCE"/mokee/OTA
+#      ota_all UNOFFICIAL "$OTAO"
+#      OTAN=$(ls -t "$OTAFOLDER"/*"$OTAO"*"UNOFFICIAL"*".zip" | head -1)
+#      OTAMD=$(dirname "$OTAN")/md5/$(basename "$OTAN").md5sum
+#      TEMP=$OTAFOLDER/temp
+#      TEMPMD=$OTAFOLDER/temp/md5
+#        if [ "$FTP" = y ]; then
+#          mkdir -p "$TEMPMD"
+#          cp "$OTAN" "$TEMP"
+#          cp "$OTAMD" "$TEMPMD"
+#      fi
+#      info "Cleaning up..."
+#      OLDROMS=$(ls -tr "$OTABDIR"/*"$OTAO"*"UNOFFICIAL.zip" | head -n 1)
+#      if [[ "$OLDROMS" ]]; then
+#        rm "$OLDROMS"
+#      fi
+#  done
+#fi
 
 # Upload to FTP
 if [ "$FTP" = y ]; then
@@ -717,18 +717,18 @@ if [ "$FTP" = y ]; then
     ROMFOLDER=$(get_build_var OUT_DIR)/target/product/"$FTPD"
     ROM=$(ls -t "$ROMFOLDER"/*"$FTPD"*"UNOFFICIAL.zip" | head -1)
     ROMMD="$ROM".md5sum
-    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$FTPD"
-    TEMP=$OTAFOLDER/temp
+#    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$FTPD"
+#    TEMP=$OTAFOLDER/temp
     echo ""
     info "Uploading "$FTPD"..."
       curl -v -T "$ROM" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPFULL"/"$FTPD"/
       curl -v -T "$ROMMD" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPFULL"/"$FTPD"/md5/
-      if [ -d "$TEMP" ]; then
-        OTAN=$(ls -t "$TEMP"/*"$FTPD"*"UNOFFICIAL"*".zip" | head -1)
-        OTAMD=$(dirname "$TEMP")/md5/$(basename "$OTAN").md5sum
-          curl -v -T "$OTAN" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPOTA"/"$FTPD"/
-          curl -v -T "$OTAMD" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPOTA"/"$FTPD"/md5/
-      fi
+#      if [ -d "$TEMP" ]; then
+#        OTAN=$(ls -t "$TEMP"/*"$FTPD"*"UNOFFICIAL"*".zip" | head -1)
+#        OTAMD=$(dirname "$TEMP")/md5/$(basename "$OTAN").md5sum
+#          curl -v -T "$OTAN" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPOTA"/"$FTPD"/
+#          curl -v -T "$OTAMD" ftp://"$FTPUSERPASS""$FTPHOST"/"$FTPOTA"/"$FTPD"/md5/
+#      fi
    done
 fi
 
@@ -743,35 +743,35 @@ if [ "$MOVE" = y ]; then
       mv "$ROM" "$STORAGE"/"$DEVICE" &&
       mv "$ROMMD" "$STORAGE"/"$DEVICE"/md5
   done
-  for OTAO in ${OTABO[@]}; do
-    info "Moving "$OTAO" OTA to "$STORAGE""
-      OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
-      OTAN=$(ls -t "$OTAFOLDER"/*"$OTAO"*"UNOFFICIAL"*".zip" | head -1)
-      OTAMD=$(dirname "$OTAN")/md5/$(basename "$OTAN").md5sum
-    if [ -e "$OTAN" ]; then
-      mkdir -p "$STORAGE"/"$OTAO"/OTA/md5
-      mv "$OTAN" "$STORAGE"/"$OTAO"/OTA
-      mv "$OTAMD" "$STORAGE"/"$OTAO"/OTA/md5
-    fi
-  done
-  rm -rf $(get_build_var OUT_DIR)/target/OTA
+#  for OTAO in ${OTABO[@]}; do
+#    info "Moving "$OTAO" OTA to "$STORAGE""
+#      OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
+#      OTAN=$(ls -t "$OTAFOLDER"/*"$OTAO"*"UNOFFICIAL"*".zip" | head -1)
+#      OTAMD=$(dirname "$OTAN")/md5/$(basename "$OTAN").md5sum
+#    if [ -e "$OTAN" ]; then
+#      mkdir -p "$STORAGE"/"$OTAO"/OTA/md5
+#      mv "$OTAN" "$STORAGE"/"$OTAO"/OTA
+#      mv "$OTAMD" "$STORAGE"/"$OTAO"/OTA/md5
+#    fi
+#  done
+#  rm -rf $(get_build_var OUT_DIR)/target/OTA
   echo ""
 fi
 
-# Clean up
-if [[ "$FTP" = y && "$OTA" = y ]]; then
-  for OTAO in ${OTABO[@]}; do
-    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
-    TEMP=$OTAFOLDER/temp
-    TEMPMD=$OTAFOLDER/temp/md5
-      if [ -d "$TEMP" ]; then
-        info "Cleaning up "$OTAO"...."
-        rm -rf "$TEMP"
-        rm -rf "$TEMPMD"
-      fi
-  done
-  echo ""
-fi
+## Clean up
+#if [[ "$FTP" = y && "$OTA" = y ]]; then
+#  for OTAO in ${OTABO[@]}; do
+#    OTAFOLDER="$SAUCE"/mokee/OTA/UNOFFICIAL/"$OTAO"
+#    TEMP=$OTAFOLDER/temp
+#    TEMPMD=$OTAFOLDER/temp/md5
+#      if [ -d "$TEMP" ]; then
+#        info "Cleaning up "$OTAO"...."
+#        rm -rf "$TEMP"
+#        rm -rf "$TEMPMD"
+#      fi
+#  done
+#  echo ""
+#fi
 
 # How long did the build take altogether?
 echo ""
