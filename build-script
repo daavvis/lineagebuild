@@ -414,7 +414,7 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
 #  echo ""
 #  fi
 
-# Upload to mokeedev.com?
+# Upload to ftp server?
   while :; do
     if FTP=$(askyn "Would you like to enable FTP uploading" "$FTP"); then
       FTPHOST=$(ask "What is your FTP Host address (ie johndoe@ftpsight.com)?" "$FTPHOST")
@@ -423,8 +423,8 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
       info "Checking access to "$FTPHOST""
         until curl -# ftp://"$FTPUSER":"$FTPPASS"@"$FTPHOST"/ >/dev/null; do
           err "User Name and or Password not correct..."
-          FTPUSER=$(ask "What is your mokeedev.com username:" "$FTPUSER")
-          FTPPASS=$(ask -s "What is your mokeedev.com password:")
+          FTPUSER=$(ask "What is your FTP server username:" "$FTPUSER")
+          FTPPASS=$(ask -s "What is your FTP server pasword:")
           info "Checking access to "$FTPHOST""
         done
       info "Success!"
