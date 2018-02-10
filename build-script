@@ -226,7 +226,7 @@ else
   err "Previous Build Configuration Found..."
   err "Your saved build settings are:"
   echo ""
-  cat ""$SAUCE"/out/buildrules/build.conf" | tail -n+2
+  cat ""$SAUCE"/out/buildrules/build.prnt"
   echo""
   if USECONF=$(askyn "Would You Like to use your previous build configuration?" $USECONF); then
     err "Ok loading previous build configuration"
@@ -260,6 +260,7 @@ if [ "$USECONF" = n ]; then
   done
   echo "Final device list: ${DEVICES[*]}"
   echo ""
+  echo "Building "${DEVICES[*]}" in order.">>""$SAUCE"/out/buildrules/build.prnt"
 
 # Enable advanced settings
 if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
@@ -278,6 +279,7 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
     err "WARNING!!! MAKE CLEAN WILL DELETE THE ENTIRE CONTENTS OF YOUR OUT FOLDER!!!"
       if SURE=$(askyn "Are you sure you would like to continue?" $SURE); then
         echo "Ok running make clean."
+        echo "Running make clean before build.">>""$SAUCE"/out/buildrules/build.prnt"
         BP=n
       else
         err "Canceling make clean..."
@@ -300,22 +302,27 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
       if [[ $STORAGE ]]; then
         # Canonicalize
         STORAGE=$(cd "$STORAGE"; pwd -P)
+        echo "Storage directory for finished ROM's is "$STORAGE".">>""$SAUCE"/out/buildrules/build.prnt"
         break
       fi
     else
-      break
+      break 
     fi
   done
 
 # Sync repos before the build starts?
   if SYNC=$(askyn "Should we sync repositories before build" $SYNC); then
     J=$(ask "what -j level should we use? 1 for slow internet 16 for fast..." $J)
+    echo "Syncing repos at j level "$J".">>""$SAUCE"/out/buildrules/build.prnt"
   fi
 
 # Use ccache?
   if CCACHE=$(askyn "Would you like to use ccache" $CCACHE); then
     if CCDIR=$(askyn "Would you like to specify the .ccache dir" $CCDIR); then
-      NEW_CCACHE_DIR=$(ask "What directory would you like to use?" $NEW_CCACHE_DIR)
+       NEW_CCACHE_DIR=$(ask "What directory would you like to use?" $NEW_CCACHE_DIR)
+       echo "Using CCACHE stored in "$NEW_CCACHE_DIR".">>""$SAUCE"/out/buildrules/build.prnt"
+    else 
+       echo "Using CCACHE from the default directory.">>""$SAUCE"/out/buildrules/build.prnt"
     fi
   fi
 
@@ -352,6 +359,7 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
           echo "Not removing build.prop for "$DEVICE"..."
         fi
       done
+      echo "Removing build.prop for "${BPD[@]}".">>""$SAUCE"/out/buildrules/build.prnt"
     fi
   fi
 
@@ -368,6 +376,7 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
           echo "Not not running mka installclean for "$DEVICE"..."
         fi
       done
+      echo "Running mka installclean for "${QCD[@]}".">>""$SAUCE"/out/buildrules/build.prnt"
     fi
   fi
 
@@ -375,6 +384,7 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
   if JB=$(askyn "Would you like to set the number of threads to build with?" $JB); then
     DEF_CORE=$(ask "How many cores (including HT) does your processor have?" $DEF_CORE)
     JBN=$(($DEF_CORE + 1))
+    echo "Using "$JBN" threads to build with (cores+1).">>""$SAUCE"/out/buildrules/build.prnt"
   fi
 
 # Make OTA's for chosen devices?
@@ -447,14 +457,16 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
         err "NOT UPLOADING "$DEVICE"..."
       fi
     done
-    echo "Final FTP upload list: "${FTPUL[@]}""
+    echo "Final FTP upload list: "${FTPUL[*]}""
     echo ""
+    echo "Uploading "${FTPUL[*]}" to "$FTPHOST", username "$FTPUSER".">>""$SAUCE"/out/buildrules/build.prnt"
   fi
 
 # Skip the advanced stuff and just build
 else
   echo ""
   err "OK, Sticking with the default build settings..."
+  echo "Using default build settings, we will only remove the build.prop.">>""$SAUCE"/out/buildrules/build.prnt"
   echo ""
   for DEVICE in ${DEVICES[@]}; do
     declare -i i=${#BPD[*]}
@@ -487,69 +499,7 @@ fi
 echo ""
 info "Final build settings..."
 echo ""
-  cat <<!EOD
-USE PREVIOUS BUILD CONFIGURATION: $USECONF
-DEVICES TO BUILD: ${DEVICES[@]}
-!EOD
-#if [ "$OTA" = y ]; then
-#  cat <<!EOD
-#DEVICES FOR OTA BUILD: ${OTABO[@]}
-#!EOD
-#fi
-if [ "$FTP" = y ]; then
-  cat <<!EOD
-DEVICES FOR FTP UPLOAD: ${FTPUL[@]}
-!EOD
-fi
-  cat <<!EOD
-REPO SYNC BEFORE BUILD: $SYNC
-!EOD
-if [ "$SYNC" = y ]; then
-  cat <<!EOD
-THREADS USED FOR REPO SYNC: $J
-!EOD
-fi
-  cat <<!EOD
-USE CCACHE: $CCACHE
-!EOD
-if [ "$CCDIR" = y ]; then
-cat <<!EOD
-CUSTOM CCACHE DIRECTORY: $NEW_CCACHE_DIR
-!EOD
-fi
-if grep -q "USECH...=*" "$SAUCE"/out/buildrules/build.conf; then
-cat <<!EOD
-DEVICES USING PREBUILT CHRONIUM: ${USECH[@]}
-!EOD
-fi
-if grep -q "BPD...=*" "$SAUCE"/out/buildrules/build.conf; then
-cat <<!EOD
-REMOVING BUILD.PROP FOR: ${BPD[@]}
-!EOD
-fi
-if grep -q "QCD...=*" "$SAUCE"/out/buildrules/build.conf; then
-cat <<!EOD
-RUN MKA INSTALLCLEAN BEFORE BUILDING: ${QCD[@]}
-!EOD
-fi
-cat <<!EOD
-CLEAN BUILD: $CLEAN
-MOVE TO STORAGE: $MOVE
-!EOD
-if [ "$MOVE" = y ]; then
-cat <<!EOD
-STORAGE DIRECTORY: $STORAGE
-!EOD
-fi
-cat <<!EOD
-CUSTOM SCHED_BATCH SETTING: $JB
-!EOD
-if [ "$JB" = y ]; then
-cat <<!EOD
-CUSTOM SCHED_BATCH LEVEL: $JBN
-!EOD
-fi
-
+cat ""$SAUCE"/out/buildrules/build.prnt"
 echo ""
 
 if [[ "$ADVNC" = y  || "$USECONF" = y ]]; then
