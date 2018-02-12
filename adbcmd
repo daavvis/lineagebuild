@@ -1,0 +1,34 @@
+ 
+#!/bin/bash
+
+# "pipe" the listed devices to a while loop
+
+function err {
+  echo "$txtrst${red}$*$txtrst" >&2
+}
+
+echo "testing adb"
+adb devices
+adb devices | read line
+# look for 'unauthorized'
+until [[ ! "$line" = "online" ]]; do
+  if [ ! "$line" = "unauthorized" ];
+    then
+      err "You need to authorize adb to connect from your device..."
+      err "Select OK on the pop up menu."
+      echo $line
+      echo end test
+
+#        # assign device variable to the result of printing the first token
+#        device=`echo $line | awk '{print $1}'`
+
+#        # simple print out, letting user know something is happening
+#        echo "$device $@ ..."
+
+#        # run the adb commands you set as an argument to "adb+"
+#        adb -s $device $@
+#        echo endofif
+    fi
+    echo end of whileloop
+done
+echo "$txtrst"
