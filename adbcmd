@@ -1,34 +1,109 @@
- 
 #!/bin/bash
 
-# "pipe" the listed devices to a while loop
+readonly red=$(tput setaf 1) #  red
+readonly grn=$(tput setaf 2) #  green
+readonly ylw=$(tput setaf 3) #  yellow
+readonly blu=$(tput setaf 4) #  blue
+readonly cya=$(tput setaf 6) #  cyan
+readonly txtbld=$(tput bold) # Bold
+readonly bldred=$txtbld$red  #  red
+readonly bldgrn=$txtbld$grn  #  green
+readonly bldylw=$txtbld$ylw  #  yellow
+readonly bldblu=$txtbld$blu  #  blue
+readonly bldcya=$txtbld$cya  #  cyan
+readonly txtrst=$(tput sgr0) # Reset
 
 function err {
   echo "$txtrst${red}$*$txtrst" >&2
 }
 
-echo "testing adb"
-adb devices
-adb devices | read line
-# look for 'unauthorized'
-until [[ ! "$line" = "online" ]]; do
-  if [ ! "$line" = "unauthorized" ];
-    then
-      err "You need to authorize adb to connect from your device..."
-      err "Select OK on the pop up menu."
-      echo $line
-      echo end test
+function ask {
+  local opt=
+  [[ $1 = -s ]] && opt="-s" && shift
+  local question=$1
+  local default=$2
+  local response
+  read $opt -rep "$txtrst$grn$question $txtrst" -i "$default" response
+  [[ $opt = -s ]] && echo >&2
+  if [[ -n $response ]]; then
+    echo "$response"
+    return 0
+  else
+    return 1
+  fi
+}
 
-#        # assign device variable to the result of printing the first token
-#        device=`echo $line | awk '{print $1}'`
+function askyn {
+  local question=$1
+  local default=$2
+  local prompt response
+  case "$default" in
+    y|Y) prompt="$txtrst$grn$question [Y/n]? $txtrst"; default="y";;
+    n|N) prompt="$txtrst$grn$question [y/N]? $txtrst"; default="n";;
+     '') prompt="$txtrst$grn$question [y/n]? $txtrst";;
+      *) echo "Error in script"; exit 1;;
+  esac
 
-#        # simple print out, letting user know something is happening
-#        echo "$device $@ ..."
-
-#        # run the adb commands you set as an argument to "adb+"
-#        adb -s $device $@
-#        echo endofif
+  while :; do
+    read -n 1 -rp "$prompt" response
+    [[ -n $response ]] && echo >&2
+    if [[ $response =~ ^[Yy]([Ee][Ss])?$ ]]; then
+      [ -t 1 ] || echo y
+      return 0
+    elif [[ $response =~ ^[Nn]([Oo])?$ ]]; then
+      [ -t 1 ] || echo n
+      return 1
+    elif [[ -z $reponse && -n $default ]]; then
+      [ -t 1 ] || echo $default
+      [[ $default = y ]]
+      return $?
     fi
-    echo end of whileloop
-done
+    err "Please press y or n"
+  done
+}
+
+
+
+
+
+
+#/bin/bash
+
+#IP='1216.58.205.195'
+
+#function pingDevice {
+  #ping -c1 -t300 $IP 2>/dev/null 1>/dev/null
+
+  #if [ "$?" = 0 ]
+
+if adb get-state 1>/dev/null 2>&1;
+  then
+    ADBGO=y
+    echo "Host found"
+    echo "All set for adb push."
+  else
+    err "Host not found"
+  until [[ $adbgo = y ]]; do
+    err "Your device is not conected, please check adb settings."
+    if askyn "Are you ready to try again?"; then
+       echo "Trying again..."
+         if adb get-state 1>/dev/null 2>&1; then
+         echo "Host found"
+         echo "All set for adb push."
+         break
+         fi
+    else
+       echo "Ok, skipping ADB transfer."
+       adb=n
+       break
+    fi
+  done
+fi
+#}
+
+#while [ 0 = 0 ]; do
+#   pingDevice
+#   sleep 5
+#done;
+
 echo "$txtrst"

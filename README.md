@@ -1,5 +1,8 @@
 # build-script for lineage os
 
+***Staging branch will not work, dot try it, its always a mess, and things i am working on....
+
+
 Automate the build process, either one for one device, or for multiple devices in a row with many options.
 
 Options:

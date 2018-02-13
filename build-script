@@ -41,6 +41,7 @@ FTPPASS=
 FTPFULL=FULL/UNOFFICIAL
 # FTPOTA=OTA/UNOFFICIAL
 JB=n
+ADBPUSH=n
 
 # Find processor cores
 if [ "$(uname)" = "Linux" ] ; then
@@ -461,6 +462,54 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
     echo ""
     echo "Uploading "${FTPUL[*]}" to "$FTPHOST", username "$FTPUSER".">>""$SAUCE"/out/buildrules/build.prnt"
   fi
+
+# Push to device
+if ADBPUSH=$(askyn "Would you like to copy to device using ADB when complete?" "$ADBPUSH"); then
+  for DEVICE in ${DEVICES[@]}; do
+    if ADBPUSHDEV=$(askyn "Would you like to copy to "$DEVICE"?" "$ADBPUSHDEV"); then
+       ADBPUSHDEV[$((i++))]=$DEVICE
+       echo ""ADBPUSHDEV[$((i++))]"="$DEVICE"   # copy "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+       echo "Will copy "${ADBPUSHDEV[@]}""
+       ADBPF=$(ask "What device folder would you like to copy to?" "$ADBPF")
+# Check to see if folder exists
+       FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
+       if [[ -z "$FILEE" ]]; then
+         err "Could not find "$FILEE"."
+         echo "Creating "$FILEE"."
+         adb shell "mkdir "$ADBPF""
+         FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
+         if [[ -z "$FILEE" ]]; then
+           err "Cannot create folder here!"
+           eval ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
+           FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
+           until [[ ! $FILEE ]]; do
+             FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
+             if [[ ! -d "$FILEE" ]]; then
+               err "Could not find "$FILEE"."
+               echo "Creating "$FILEE"."
+               adb shell "mkdir "$ADBPF""
+               break
+             else
+                 err "Cannot create folder here!"
+             fi
+             ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
+             FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
+           done
+         else
+           echo "Folder created sucessfuly."
+         fi
+      else
+        echo "Ok, pushing "$DEVICE" to "$FILEE"."
+      fi
+    else
+      echo "Ok, not pushing "$DEVICE"."
+    fi
+    FILEE[$((i++))]=$DEVICE
+    echo ""FILEE[$((i++))]"="$DEVICE"   # "$DEVICE" ADB storage folder">>""$SAUCE"/out/buildrules/build.conf"
+  done
+else
+  echo "Ok, not copying finished product using adb."
+fi
 
 # Skip the advanced stuff and just build
 else
