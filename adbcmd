@@ -143,7 +143,6 @@ declare -i i=${#ADBPUSHDEV[*]}
        ADBPF=$(ask "What device folder would you like to copy to?" "$ADBPF")
 
 # Check to see if folder exists
-
        if [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; then
           echo "Folder exists";
        else
@@ -173,10 +172,51 @@ declare -i i=${#ADBPUSHDEV[*]}
       id=`echo $line | awk '{print $1}'`
       echo "Device id is $id $@ ..."
       echo ""$DEVICE""id"="$line"   # "$DEVICE" ADB id">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+      DEVICEID[$((i++))]=$line
+      echo ${DEVICEID[@]}
   done
 else
   echo "Ok, not copying finished product using adb."
 fi
+
+# Send file to device
+
+if [ "$ADBPUSH" = y ]; then
+  ROMFOLDER=$"/home/daavvis/daavvisgit/buildscript"
+  ROM=$(ls -t "$ROMFOLDER"/*"UNOFFICIAL-"$DEVICE".zip" | head -1)
+  ROMMD="$ROM".md5sum
+  for DEVICE in ${DEVICES[@]}; do
+    TESTID=`adb devices | grep -v "List"  | awk '{print $1}'`
+    if [[ "$TESTID" = "${DEVICEID[@]}" ]]; then
+      adb push "$ROM" "$ADBPF"
+      adb push "$ROMMD" "$ADBPF"
+      echo "Files copied."
+    else
+      until [[ "$TESTID" = "${DEVICEID[@]}" ]]; do
+      echo "Wrong device connected, please connect "$DEVICE"."
+        if $(askyn "Press y when device is connected, or pess no to cancel."); then
+          TESTID=`adb devices | grep -v "List"  | awk '{print $1}'`
+            if [[ "$TESTID" = "${DEVICEID[@]}" ]]; then
+              adb push "$ROM" "$ADBPF"
+              adb push "$ROMMD" "$ADBPF"
+              echo "Files copied."
+              break
+            else
+              err "Wrong deviced atached"
+            fi
+        else
+          err "Canceling copy."
+          break
+        fi
+      done
+    fi
+  done
+fi
+      
+      
+
+
+
 
 
 

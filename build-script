@@ -506,6 +506,7 @@ declare -i i=${#ADBPUSHDEV[*]}
       echo "Device id is $id $@ ..."
       echo ""$DEVICE""id"="$line"   # "$DEVICE" ADB id">>""$SAUCE"/out/buildrules/build.conf"
       echo ""$DEVICE" adb id is "$LINE"">>""$SAUCE"/out/buildrules/build.prnt"
+      DEVICEID[$((i++))]=$line
   done
 else
   echo "Ok, not copying finished product using adb."
