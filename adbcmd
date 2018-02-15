@@ -1,5 +1,30 @@
 #!/bin/bash
 
+# Defaults
+DEVICE=shamu
+SAUCE="$PWD"
+ADVNC=n
+MOVE=n
+STORAGE=
+SYNC=n
+J=4
+BP=y
+CCACHE=y
+DEFAULT_CCACHE_DIR=~/.ccache
+#PRCHR=n
+QCLEAN=n
+CLEAN=n
+# OTA=n
+FTP=n
+FTPHOST=
+FTPUSER=
+FTPPASS=
+FTPFULL=FULL/UNOFFICIAL
+# FTPOTA=OTA/UNOFFICIAL
+JB=n
+ADBPUSH=y
+
+
 readonly red=$(tput setaf 1) #  red
 readonly grn=$(tput setaf 2) #  green
 readonly ylw=$(tput setaf 3) #  yellow
@@ -62,48 +87,98 @@ function askyn {
   done
 }
 
+function demand {
+  local question=$1
+  local default=$2
+  local response
+  read -rep "$txtrst$grn$question $txtrst" -i "$default" response
+  while [[ -z $response ]]; do
+    err "Please enter a value"
+    read -rep "$txtrst$grn$1 $txtrst" -i "$default" response
+  done
+  echo "$response"
+}
+
+function isIn {
+  for val in "${@:2}"; do
+    [[ $val = $1 ]] && return 0
+  done
+  return 1
+}
 
 
+rm -rf "/home/daavvis/daavvisgit/buildscript/build.conf"
 
+#if [ "$USECONF" = n ]; then
+  echo '#!/bin/bash' >> "/home/daavvis/daavvisgit/buildscript/build.conf"
+# Add devices
+  declare -i i=${#DEVICES[*]}
+  if ((i == 0)); then
+    DEVICES[$((i++))]=$(demand "Which device would you like to build?")
+  fi
+  echo "DEVICES[1]="${DEVICES[*]}"   # Build "${DEVICES[*]}"">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+  echo "Device list: ${DEVICES[*]}"
 
+  while response=$(ask "Which other device would you like to build [return if done]?"); do
+    if isIn "$response" "${DEVICES[@]}"; then
+      err "You already said $response"
+    else
+      DEVICES[$((i++))]="$response"
+      echo ""DEVICES[$((i++))]"="$response"   # Build "$response"">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+    fi
+    echo "Device list: ${DEVICES[*]}"
+  done
+  echo "Final device list: ${DEVICES[*]}"
+  echo ""
+  echo "Building "${DEVICES[*]}" in order.">>"/home/daavvis/daavvisgit/buildscript/build.conf"
 
-#/bin/bash
+# Push to device
+if ADBPUSH=$(askyn "Would you like to copy to device using ADB when complete?" "$ADBPUSH"); then
+declare -i i=${#ADBPUSHDEV[*]}
+  for DEVICE in ${DEVICES[@]}; do
+    if ADBPUSHDEV=$(askyn "Would you like to copy to "$DEVICE"?" "$ADBPUSHDEV"); then
+       ADBPUSHDEV[$((i++))]=$DEVICE
+       echo ""ADBPUSHDEV[$((i++))]"="$DEVICE"   # copy "$DEVICE"">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+       echo "Will copy "${ADBPUSHDEV[@]}""
+       ADBPF=$(ask "What device folder would you like to copy to?" "$ADBPF")
 
-#IP='1216.58.205.195'
+# Check to see if folder exists
 
-#function pingDevice {
-  #ping -c1 -t300 $IP 2>/dev/null 1>/dev/null
-
-  #if [ "$?" = 0 ]
-
-if adb get-state 1>/dev/null 2>&1;
-  then
-    ADBGO=y
-    echo "Host found"
-    echo "All set for adb push."
-  else
-    err "Host not found"
-  until [[ $adbgo = y ]]; do
-    err "Your device is not conected, please check adb settings."
-    if askyn "Are you ready to try again?"; then
-       echo "Trying again..."
-         if adb get-state 1>/dev/null 2>&1; then
-         echo "Host found"
-         echo "All set for adb push."
-         break
+       if [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; then
+          echo "Folder exists";
+       else
+         err "Folder does not exist"
+         echo "Creating "$ADFPF"."
+         adb shell "mkdir "$ADBPF""
+           if [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; then
+             echo "Folder created succesfully."
+           else
+               err "Cannot create folder here!"
+               until [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; do
+                 eval ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
+                 adb shell "mkdir -p "$ADBPF""
+                 [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]
+               done
+             echo "Folder created succesfully."
+           fi
          fi
     else
-       echo "Ok, skipping ADB transfer."
-       adb=n
-       break
+      echo "Ok, not pushing "$DEVICE"."
     fi
-  done
-fi
-#}
 
-#while [ 0 = 0 ]; do
-#   pingDevice
-#   sleep 5
-#done;
+# Check device id
+    ADBPF[$((i++))]=$DEVICE
+    echo ""$DEVICE""FLDR"="$ADBPF"   # "$DEVICE" ADB storage folder">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+    line=`adb devices | grep -v "List"  | awk '{print $1}'`
+      id=`echo $line | awk '{print $1}'`
+      echo "Device id is $id $@ ..."
+      echo ""$DEVICE""id"="$line"   # "$DEVICE" ADB id">>"/home/daavvis/daavvisgit/buildscript/build.conf"
+  done
+else
+  echo "Ok, not copying finished product using adb."
+fi
+
+
+
 
 echo "$txtrst"

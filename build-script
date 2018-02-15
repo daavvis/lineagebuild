@@ -465,47 +465,47 @@ if ADVNC=$(askyn "Would You Like to Enable Advanced Building?" $ADVNC); then
 
 # Push to device
 if ADBPUSH=$(askyn "Would you like to copy to device using ADB when complete?" "$ADBPUSH"); then
+declare -i i=${#ADBPUSHDEV[*]}
   for DEVICE in ${DEVICES[@]}; do
     if ADBPUSHDEV=$(askyn "Would you like to copy to "$DEVICE"?" "$ADBPUSHDEV"); then
        ADBPUSHDEV[$((i++))]=$DEVICE
        echo ""ADBPUSHDEV[$((i++))]"="$DEVICE"   # copy "$DEVICE"">>""$SAUCE"/out/buildrules/build.conf"
+       echo "Copy using adb to "$DEVICE"">>""$SAUCE"/out/buildrules/build.prnt"
        echo "Will copy "${ADBPUSHDEV[@]}""
        ADBPF=$(ask "What device folder would you like to copy to?" "$ADBPF")
+
 # Check to see if folder exists
-       FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
-       if [[ -z "$FILEE" ]]; then
-         err "Could not find "$FILEE"."
-         echo "Creating "$FILEE"."
+       if [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; then
+          echo "Folder exists";
+       else
+         err "Folder does not exist"
+         echo "Creating "$ADFPF"."
          adb shell "mkdir "$ADBPF""
-         FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
-         if [[ -z "$FILEE" ]]; then
-           err "Cannot create folder here!"
-           eval ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
-           FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
-           until [[ ! $FILEE ]]; do
-             FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
-             if [[ ! -d "$FILEE" ]]; then
-               err "Could not find "$FILEE"."
-               echo "Creating "$FILEE"."
-               adb shell "mkdir "$ADBPF""
-               break
-             else
-                 err "Cannot create folder here!"
-             fi
-             ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
-             FILEE=$(adb shell ls / | tr -d '\015'|grep '^"$ADBPF"$')
-           done
-         else
-           echo "Folder created sucessfuly."
+           if [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; then
+             echo "Folder created succesfully."
+           else
+               err "Cannot create folder here!"
+               until [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]; do
+                 eval ADBPF=$(ask "Enter the path to your storage directory [blank cancels]:" $ADPF)
+                 adb shell "mkdir -p "$ADBPF""
+                 [ `adb shell "if [ -e "$ADBPF" ]; then echo 1; fi"` ]
+               done
+             echo "Folder created succesfully."
+           fi
          fi
-      else
-        echo "Ok, pushing "$DEVICE" to "$FILEE"."
-      fi
     else
       echo "Ok, not pushing "$DEVICE"."
     fi
-    FILEE[$((i++))]=$DEVICE
-    echo ""FILEE[$((i++))]"="$DEVICE"   # "$DEVICE" ADB storage folder">>""$SAUCE"/out/buildrules/build.conf"
+
+# Check device id
+    ADBPF[$((i++))]=$DEVICE
+    echo ""$DEVICE""FLDR"="$ADBPF"   # "$DEVICE" ADB storage folder">>""$SAUCE"/out/buildrules/build.conf"
+    echo ""$DEVICE" adb storage folder is "$ADBPF".">>""$SAUCE"/out/buildrules/build.prnt"
+    line=`adb devices | grep -v "List"  | awk '{print $1}'`
+      id=`echo $line | awk '{print $1}'`
+      echo "Device id is $id $@ ..."
+      echo ""$DEVICE""id"="$line"   # "$DEVICE" ADB id">>""$SAUCE"/out/buildrules/build.conf"
+      echo ""$DEVICE" adb id is "$LINE"">>""$SAUCE"/out/buildrules/build.prnt"
   done
 else
   echo "Ok, not copying finished product using adb."
